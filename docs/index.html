@@ -2,7 +2,7 @@
 <html>
 <head><style type="text/css">
 div.output_subarea {
-  max-width: 100% !important;
+	max-width: 100% !important;
 }
 </style>
 <meta charset="utf-8" />
@@ -11766,7 +11766,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Summary-:">Summary :<a class="anchor-link" href="#Summary-:">&#182;</a></h2><p>This is the report made for Udacity's Data Analyst NanoDegree : Introduction to Machine Learning lesson.</p>
+<h2 id="Summary-:">Summary :<a class="anchor-link" href="#Summary-:">&#182;</a></h2><p>This is the report made for Udacity's NanoDegree Introduction to Machine Lesson.</p>
 <p>Subject treatead :</p>
 <ul>
 <li>Naive Bayes</li>
@@ -12040,7 +12040,7 @@ div#notebook {
 <p>Final list of features : ['poi', 'salary', 'total_stock_value', 'deferred_income', 'exercised_stock_options', 'bonus']</p>
 <p>Feature selection is by far the most back and forth process of the project.</p>
 <ol>
-<li>At first, we had the intuition that we needed to remove any data points withe some "missing data" so to feed the classifier only with clean data.<ol>
+<li>At first, we had the intuition that we needed to remove any data points with "missing data" so to feed the classifier only with clean data.<ol>
 <li>We constructed this matrix of "feature completness" based on POI/NO_POI and selected all feature with completness &gt;.85 for POI</li>
 </ol>
 </li>
@@ -12227,47 +12227,46 @@ div#notebook {
 <li>Gaussian Naive Bayes showed very promissing results with the same set of features from SelectKBest, with k=10</li>
 <li>Gaussian Naive Bayes showed improvement in performance with SelectKBest, k=5</li>
 <li>We used FeatureUnion[2] to combine features obtained by PCA and univariate selection with slightly worst performnance</li>
-<li>Definitive feature list : ['poi', 'salary', 'total_stock_value', 'deferred_income', 'exercised_stock_options', 'bonus'] selected by SelectKbest </li>
+<li>Definitive feature list : ['poi', 'salary', 'total_stock_value', 'deferred_income', 'exercised_stock_options', 'bonus'] selected by SelectKbest combined with Gaussian Naive Bayes.</li>
 </ol>
-<p>Note on feature creation: After observing similar performances on GNB + SelectkBest with K=3 and K=5 we created a pipeline PCA &gt; SelectKbest</p>
+<p>Note for feature engineering:</p>
+<p>a) After observing similar performances on GNB + SelectkBest with K=3 and K=5 we created a pipeline PCA &gt; SelectKbest</p>
 
 <pre><code>pipeline = Pipeline([("features", combined_features), ("gnb", GNB)])
 param_grid = dict(features__pca__n_components=[1, 2],
                    features__univ_select__k=[2,3,4,5,6,7],
                    )</code></pre>
 <p>The objective was to try to reduce 2 or more feature into the principal component. However, this approach did not bring significant improvement in the metrics evaluated.</p>
+<p>b) We have also engineered a new feature out of a combination of two previous ones.</p>
+
+<pre><code>my_dataset_df['sum_of_unclassified'] = my_dataset_df['other'] + my_dataset_df['expenses'] 
+#The intuition is that POI have more of unclassified expenses where they hide not so offcial activities.</code></pre>
+<p>However the addition of this new feature did not affect the results on feature selection. After running selecktKbest on the entire set of features, 'sum_of_unclassified' came on 11th position out of 16.</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt"></div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="k">print</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">selector</span><span class="o">.</span><span class="n">scores_</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div></div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>[25.097541528735491, 24.467654047526398, 21.060001707536571, 18.575703268041785, 11.595547659730601]</p>
+
+<pre><code>[('exercised_stock_options', 25.097541528735491),
+ ('total_stock_value', 24.467654047526398),
+ ('bonus', 21.060001707536571),
+ ('salary', 18.575703268041785),
+ ('deferred_income', 11.595547659730601),
+ ('long_term_incentive', 10.072454529369441),
+ ('restricted_stock', 9.3467007910514877),
+ ('total_payments', 8.8667215371077717),
+ ('loan_advances', 7.2427303965360181),
+ ('expenses', 6.2342011405067401),
+ ('sum_of_unclassified', 5.31257142710212),
+ ('other', 4.204970858301416),
+ ('to_messages', 1.6988243485808501),
+ ('deferral_payments', 0.2170589303395084),
+ ('from_messages', 0.16416449823428736)]</code></pre>
 
 </div>
 </div>
@@ -12364,8 +12363,14 @@ eqv. with miss, Type II error</p>
 <p>Precision : TP / (TP + FP)</p>
 <blockquote><p>the fraction of retrieved documents that are relevant to the query</p>
 </blockquote>
+<p>so in the case of this particular project</p>
+<blockquote><p>precision is the proportion of real POIs identified as such compared with all the POI's identified (where some false positives, or false POI's, might have occured)</p>
+</blockquote>
 <p>Recall : TP / (TP + FN)</p>
 <blockquote><p>the fraction of the documents that are relevant to the query that are successfully retrieved.</p>
+</blockquote>
+<p>so in the case of this particular project</p>
+<blockquote><p>recall is the proportion of real POIs identified as such compared with all the real POI's (where some false negatives, or POI's not classified as such, might have occured)</p>
 </blockquote>
 <p>As explained before our best results were</p>
 <blockquote><p><strong>Precision: 0.489 Recall: 0.381 F1: 0.428 F2: 0.398</strong></p>
